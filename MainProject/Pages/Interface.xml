@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<Page Version="4000" TimeStamp="2020-06-18 17:17:15">
+	<PageEditSize Type="Inherited" />
+	<ProjectUUID>E0198E3C-DD6D-4E3E-ABC4-A665FC7E5822</ProjectUUID>
+	<TemplatesTabOrderPosition>1</TemplatesTabOrderPosition>
+	<Background Inherited="true" />
+	<PageObject Type="Network Object">
+		<Location top="24" left="24" bottom="426" right="828" />
+		<TabOrder>1</TabOrder>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<Border Style="InShadow" Width="2" MarginTop="5" MarginRight="5" MarginBottom="5" MarginLeft="5" />
+		<BackgroundColor RGB="#ffffff" />
+		<HorizontalScrollbar>true</HorizontalScrollbar>
+		<VerticalScrollbar>true</VerticalScrollbar>
+		<AllowZoom>false</AllowZoom>
+		<EqualXYScale>false</EqualXYScale>
+		<ScrollControl>NoScrolling</ScrollControl>
+		<VisibleArea>
+			<Left>LeftBorder</Left>
+			<Right>RightBorder</Right>
+			<Top>UpBorder</Top>
+			<Bottom>DownBorder</Bottom>
+		</VisibleArea>
+		<TotalArea>
+			<Left>-0.55</Left>
+			<Right>1.65</Right>
+			<Top>1.65</Top>
+			<Bottom>-0.55</Bottom>
+		</TotalArea>
+		<Node>
+			<Identifier>n</Identifier>
+			<XCoordinate>Coords( n, 'x' )</XCoordinate>
+			<YCoordinate>Coords( n, 'y' )</YCoordinate>
+			<NumberFormat Width="6" Decimals="2" />
+			<MaximumSize>8</MaximumSize>
+			<ScaleFactor>10</ScaleFactor>
+			<TextPosition>Right</TextPosition>
+			<TextShowWhat>ElementName</TextShowWhat>
+			<Shape>Rectangle</Shape>
+		</Node>
+		<Arc>
+			<Identifier>ChosenPaths( i, j )</Identifier>
+			<NumberFormat Width="6" Decimals="2" />
+			<MaximumSize>8</MaximumSize>
+			<TextPosition>Right</TextPosition>
+			<Shape>Straight</Shape>
+			<FirstSegment>Horizontal</FirstSegment>
+			<ClickWhere>EntireArc</ClickWhere>
+		</Arc>
+	</PageObject>
+	<PageObject Type="Scalar">
+		<Location top="384" left="828" bottom="426" right="942" />
+		<TabOrder>2</TabOrder>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<Border Style="InShadow" Width="2" MarginTop="5" MarginRight="5" MarginBottom="5" MarginLeft="5" />
+		<BackgroundColor RGB="#ffffff" />
+		<Layout>Text-Value</Layout>
+		<SeparatorSign>=</SeparatorSign>
+		<ExplicitIdentifier>
+			<Identifier>TotalCost</Identifier>
+			<NumberFormat Width="5" Decimals="1" Scientific="IfTooSmallorLarge" Alignment="Center" ShowDefaults="true" />
+		</ExplicitIdentifier>
+	</PageObject>
+	<PageObject Type="Button">
+		<Location top="24" left="828" bottom="48" right="954" />
+		<TabOrder>4</TabOrder>
+		<LeaveOnEnter>false</LeaveOnEnter>
+		<ButtonType>Text</ButtonType>
+		<Title>TaskTypeBtnTxt</Title>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<ActionSequence>
+			<Action Type="Run">
+				<RunWhat>SpecificProcecure</RunWhat>
+				<Procedure>TaskTypeBtn</Procedure>
+				<AbortOnError>true</AbortOnError>
+			</Action>
+		</ActionSequence>
+	</PageObject>
+	<PageObject Type="Button">
+		<Location top="48" left="828" bottom="90" right="954" />
+		<TabOrder>3</TabOrder>
+		<LeaveOnEnter>false</LeaveOnEnter>
+		<ButtonType>Text</ButtonType>
+		<Title>ClusterMethodBtnTxt</Title>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<ActionSequence>
+			<Action Type="Run">
+				<RunWhat>SpecificProcecure</RunWhat>
+				<Procedure>ClusterMethodBtn</Procedure>
+				<AbortOnError>true</AbortOnError>
+			</Action>
+		</ActionSequence>
+	</PageObject>
+	<PageObject Type="Button">
+		<Location top="348" left="828" bottom="384" right="894" />
+		<LeaveOnEnter>false</LeaveOnEnter>
+		<ButtonType>Text</ButtonType>
+		<Title>"Run"</Title>
+		<Font GUID="00000000-0000-0000-0000-000000000001" Name="Main Font" />
+		<ActionSequence>
+			<Action Type="Run">
+				<RunWhat>SpecificProcecure</RunWhat>
+				<Procedure>MainExecution</Procedure>
+				<AbortOnError>true</AbortOnError>
+			</Action>
+		</ActionSequence>
+	</PageObject>
+	<UsedReferences>
+		<Model>
+			<Symbol>Coords</Symbol>
+			<Symbol>ChosenPaths</Symbol>
+			<Symbol>TotalCost</Symbol>
+			<Symbol>LeftBorder</Symbol>
+			<Symbol>RightBorder</Symbol>
+			<Symbol>UpBorder</Symbol>
+			<Symbol>DownBorder</Symbol>
+			<Symbol>TaskTypeBtnTxt</Symbol>
+			<Symbol>MainExecution</Symbol>
+			<Symbol>n</Symbol>
+			<Symbol>i</Symbol>
+			<Symbol>j</Symbol>
+			<Symbol>ClusterMethodBtnTxt</Symbol>
+			<Symbol>TaskTypeBtn</Symbol>
+			<Symbol>ClusterMethodBtn</Symbol>
+		</Model>
+	</UsedReferences>
+</Page>

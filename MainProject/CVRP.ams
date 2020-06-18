@@ -1,0 +1,345 @@
+## ams_version=1.0
+
+Model Main_CVRP {
+    Section VRP {
+        DeclarationSection RegionalData {
+            Set AlgorithmSet {
+                SubsetOf: AllMathematicalPrograms;
+                Definition: data{VRPTW, MTZ};
+            }
+            ElementParameter ChosenProgram {
+                Range: AlgorithmSet;
+            }
+            Set Cluster {
+                SubsetOf: Point;
+                Index: cn, ci, cj;
+            }
+            Variable RegionalChosenPaths {
+                IndexDomain: (ci,cj);
+                Range: binary;
+            }
+        }
+        DeclarationSection CVRP_MTZ {
+            Variable MTZCumulatedDemand {
+                IndexDomain: cn;
+                Range: free;
+            }
+            Variable MTZCost {
+                Range: free;
+                Definition: sum((ci,cj),RegionalChosenPaths(ci,cj)*d(ci,cj));
+            }
+            Constraint MTZIncreasingCumulatedDemand {
+                IndexDomain: (ci,cj)|cj<>Depot;
+                Definition: MTZCumulatedDemand(ci)-MTZCumulatedDemand(cj)+Capacity*RegionalChosenPaths(ci,cj) <= Capacity-Demand(cj);
+            }
+            Constraint MTZMaxCumulatedDemand {
+                IndexDomain: cn;
+                Definition: Demand(cn)<=MTZCumulatedDemand(cn)<=Capacity;
+            }
+            Constraint MTZOneEntry {
+                IndexDomain: cn|cn<>Depot;
+                Definition: sum((ci),RegionalChosenPaths(ci,cn))=1;
+            }
+            Constraint MTZOneExit {
+                IndexDomain: cn|cn<>Depot;
+                Definition: sum((cj),RegionalChosenPaths(cn,cj))=1;
+            }
+            Set MTZConstraints {
+                SubsetOf: AllConstraints;
+                Definition: data{MTZincreasingCumulatedDemand, MTZmaxCumulatedDemand, MTZoneEntry, MTZoneExit};
+            }
+            Set MTZVariables {
+                SubsetOf: AllVariables;
+                Definition: data{MTZCumulatedDemand, RegionalChosenPaths, MTZcost};
+            }
+            MathematicalProgram MTZ {
+                Objective: MTZCost;
+                Direction: minimize;
+                Constraints: MTZConstraints;
+                Variables: MTZVariables;
+                Type: Automatic;
+            }
+        }
+        DeclarationSection CVRPTW {
+            Variable TWDeparture {
+                IndexDomain: cn;
+                Range: free;
+            }
+            Constraint TWIncreasingDepartureTime {
+                IndexDomain: (ci,cj);
+                Definition: TWDeparture(ci) + TravelTime(ci,cj) - TWDeparture(cj) <= 10000 * (1 - RegionalChosenPaths(ci,cj));
+            }
+            Constraint TWTimeConstraint {
+                IndexDomain: cn;
+                Definition: LBTW(cn) <= TWDeparture(cn) <= UBTW(cn);
+            }
+            Set TWConstraints {
+                SubsetOf: AllConstraints;
+                Definition: data{TWIncreasingDepartureTime, TWTimeConstraint} + MTZConstraints;
+            }
+            Set TWVariables {
+                SubsetOf: AllVariables;
+                Definition: data{TWDeparture} + MTZVariables;
+            }
+            MathematicalProgram VRPTW {
+                Objective: MTZCost;
+                Direction: minimize;
+                Constraints: TWConstraints;
+                Variables: TWVariables;
+                Type: Automatic;
+            }
+        }
+    }
+    Section Clusterization {
+        DeclarationSection ClusterData {
+            Set Seeds {
+                SubsetOf: Point;
+                Index: s;
+                OrderBy: User;
+            }
+            Variable x {
+                IndexDomain: (n,s) | n<>Depot;
+                Range: binary;
+            }
+        }
+        DeclarationSection Sweep {
+            Set Boxes {
+                SubsetOf: Point;
+                Index: b;
+                OrderBy: User;
+            }
+            Parameter r {
+                IndexDomain: b;
+            }
+            Parameter phi {
+                IndexDomain: b;
+                Range: free;
+            }
+            Parameter CumulatedDemand;
+            ElementParameter Seed {
+                Range: Point;
+            }
+        }
+        DeclarationSection FisherJaikumar {
+            Parameter ClusterNo {
+                Definition: CarsNo;
+            }
+            Parameter FJcost {
+                IndexDomain: (n,s);
+            }
+            Variable GAPcost {
+                Range: free;
+                Definition: {
+                    sum((n,s),x(n,s)*FJcost(n,s));
+                }
+            }
+            Constraint GAPcapacity {
+                IndexDomain: s;
+                Definition: sum(n|n<>Depot, x(n,s)*Demand(n))<=Capacity;
+            }
+            Constraint GAPpointInCluster {
+                IndexDomain: n|n<>Depot;
+                Definition: sum(s,x(n,s))=1;
+            }
+            Set GAPconstraints {
+                SubsetOf: AllConstraints;
+                Definition: data{GAPcapacity, GAPpointInCluster};
+            }
+            Set GAPvariables {
+                SubsetOf: AllVariables;
+                Definition: data{x, GAPcost};
+            }
+            MathematicalProgram GAP {
+                Objective: GAPcost;
+                Direction: minimize;
+                Constraints: GAPconstraints;
+                Variables: GAPvariables;
+                Type: Automatic;
+            }
+        }
+    }
+    Section InputData {
+        DeclarationSection timewindows {
+            Parameter ServiceTime {
+                IndexDomain: n;
+            }
+            Parameter LBTW {
+                IndexDomain: n;
+            }
+            Parameter UBTW {
+                IndexDomain: n;
+            }
+            Parameter TravelTime {
+                IndexDomain: (i,j);
+            }
+        }
+        DeclarationSection nodes {
+            Set Point {
+                Index: n, i, j;
+                InitialData: ElementRange(0,9);
+            }
+            ElementParameter Depot {
+                Range: Point;
+            }
+            Parameter Coords {
+                IndexDomain: (n,c);
+            }
+            Parameter Demand {
+                IndexDomain: n;
+            }
+        }
+        DeclarationSection cars {
+            Parameter Capacity {
+                InitialData: 60;
+            }
+            Parameter CarsNo {
+                Range: integer;
+                Definition: 4;
+            }
+        }
+    }
+    DeclarationSection OutputData {
+        Parameter ChosenPaths {
+            IndexDomain: (i,j);
+        }
+        Parameter TotalCost {
+            Definition: sum((i,j),ChosenPaths(i,j)*D(i,j));
+        }
+    }
+    DeclarationSection Other {
+        Parameter D {
+            IndexDomain: (i,j);
+            Definition: sqrt(sum(c, (Coords(i,c)-Coords(j,c))^2));
+        }
+        Set Dimensions {
+            Index: c;
+            Definition: data{'x','y'};
+        }
+        Parameter Algorithm {
+            Range: integer;
+            InitialData: 0;
+            Comment: "0-CVRP, 1-CVRPTW";
+        }
+        Parameter ClusterMethod {
+            InitialData: 1;
+            Comment: "0-sweep, 1-FisherJaikumar";
+        }
+    }
+    Section PageGUI {
+        Procedure TaskTypeBtn {
+            Body: {
+                Algorithm:=Mod(Algorithm+1,2);
+                if (Algorithm=1) then
+                	TaskTypeBtnTxt:='Task: CVRPTW';
+                else
+                	TaskTypeBtnTxt:='Task: CVRP';
+                endif;
+            }
+        }
+        Procedure ClusterMethodBtn {
+            Body: {
+                ClusterMethod:=Mod(ClusterMethod+1,2);
+                if (ClusterMethod=1) then
+                	ClusterMethodBtnTxt:="Clustering: Fisher-Jaikumar";
+                else
+                	ClusterMethodBtnTxt:="Clustering: Sweep";
+                endif;
+            }
+        }
+        DeclarationSection Buttons {
+            StringParameter TaskTypeBtnTxt {
+                InitialData: "Task: CVRP";
+            }
+            StringParameter ClusterMethodBtnTxt {
+                InitialData: "Clustering: Fisher-Jaikumar";
+            }
+        }
+        DeclarationSection NetworkGraphSize {
+            Parameter Height;
+            Parameter Width;
+            Parameter LeftBorder {
+                Definition: Min(n,Coords(n,'x'))-0.05*Width;
+            }
+            Parameter RightBorder {
+                Definition: LeftBorder+Width*1.1;
+            }
+            Parameter UpBorder {
+                Definition: DownBorder+Height*1.1;
+            }
+            Parameter DownBorder {
+                Definition: Min(n,Coords(n,'y'))-0.05*Height;
+            }
+        }
+    }
+    Procedure MainExecution {
+        Body: {
+            Depot:=Element(Point,1); !first element in Points is depot (it's named 0)
+            if (ClusterMethod=1) then !Fisher-Jaikumar
+            	empty ChosenPaths, Seeds, x, x.nonvar;
+            	Seeds:=Nbest(n,Demand(n),ClusterNo);!choice of seeds used to initialize clusters
+            	FJcost(n,s):= min(d(Depot,n)+d(n,s)+d(s,Depot),d(Depot,s)+d(s,n)+d(n,Depot))-(d(Depot,s)+d(s,Depot));
+            	!Setting seeds as permanently selected points and fixing their non-variable status
+            	x(s,s):=1;
+            	x.nonvar(s,s):=1;
+            
+            	ShowProgressWindow;
+            	solve GAP;
+            else !Sweep
+            	empty ChosenPaths, Seeds, x, x.nonvar;
+            	Boxes:=Point-Depot;
+            	r(b):=sqrt( (Coords(b,'y')-Coords(Depot,'y'))^2 + (Coords(b,'x')-Coords(Depot,'x'))^2 );
+            	Boxes:=Sort(b in Boxes, sign((Coords(b,'y')-Coords(Depot,'y')))*ArcCos( (Coords(b,'x')-Coords(Depot,'x'))/r(b) ));
+            	CumulatedDemand:=0; 
+            	Seed := Element(Boxes,1);
+            	Seeds += Seed;
+            	for (b in Boxes) do
+            		CumulatedDemand += Demand(b);
+            		if (CumulatedDemand>Capacity) then
+            			CumulatedDemand:=0;
+            			Seed:=b;
+            			Seeds+=Seed;
+            		endif;
+            		x(b,Seed):=1;
+            	endfor;
+            endif;
+            
+            ChosenProgram:=Element(AlgorithmSet,Algorithm+1);
+            for (s in Seeds) do
+            	empty Cluster, RegionalChosenPaths;
+            	Cluster:={i|x(i,s)=1}+Depot;
+            	solve ChosenProgram;
+            	ChosenPaths(ci,cj)+=RegionalChosenPaths(ci,cj);
+            endfor;
+            
+            !GUI
+            Height:=Abs(Max(n,Coords(n,'y'))-Min(n,Coords(n,'y')));
+            Width:=Abs(Max(n,Coords(n,'x'))-Min(n,Coords(n,'x')));
+            if (Width<2*Height) then
+            	Width:=2*Height;
+            else
+            	Height:=Width/2;
+            endif;
+        }
+    }
+    Procedure PreMainTermination {
+        Body: {
+            return DataManagementExit();
+        }
+        Comment: {
+            "Add termination statements here that require all libraries to be still alive.
+            Return 1 if you allow the termination sequence to continue.
+            Return 0 if you want to cancel the termination sequence."
+        }
+    }
+    Procedure MainTermination {
+        Body: {
+            return 1;
+        }
+        Comment: {
+            "Add termination statements here that do not require all libraries to be still alive.
+            Return 1 to allow the termination sequence to continue.
+            Return 0 if you want to cancel the termination sequence.
+            It is recommended to only use the procedure PreMainTermination to cancel the termination sequence and let this procedure always return 1."
+        }
+    }
+}
