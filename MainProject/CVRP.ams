@@ -162,39 +162,45 @@ Model Main_CVRP {
         DeclarationSection timewindows {
             Parameter ServiceTime {
                 IndexDomain: n;
+                Comment: "Time needed to service Point";
             }
             Parameter LBTW {
                 IndexDomain: n;
+                Comment: "Lower bound of time window in Point";
             }
             Parameter UBTW {
                 IndexDomain: n;
+                Comment: "Upper bound of time window in Point";
             }
             Parameter TravelTime {
                 IndexDomain: (i,j);
+                Comment: "Time needed to travel from Point i to Point j";
             }
         }
         DeclarationSection nodes {
             Set Point {
                 Index: n, i, j;
                 InitialData: ElementRange(0,9);
-            }
-            ElementParameter Depot {
-                Range: Point;
+                Comment: "List of all points including Depot and Clients. 1st element (named \'0\' in initial data) is considered as depot";
             }
             Parameter Coords {
                 IndexDomain: (n,c);
+                Comment: "X,Y coordinates of Points. Cost of traveling from x to y is calculated as distance between them.";
             }
             Parameter Demand {
                 IndexDomain: n;
+                Comment: "Demand of every Point. It has to be lower than cars\' Capacity as we don\'t provide option of servicing Point more than once.";
             }
         }
         DeclarationSection cars {
             Parameter Capacity {
                 InitialData: 60;
+                Comment: "Capacity of every car";
             }
             Parameter CarsNo {
                 Range: integer;
                 Definition: 4;
+                Comment: "Number of cars";
             }
         }
     }
@@ -214,6 +220,9 @@ Model Main_CVRP {
         Set Dimensions {
             Index: c;
             Definition: data{'x','y'};
+        }
+        ElementParameter Depot {
+            Range: Point;
         }
         Parameter Algorithm {
             Range: integer;
